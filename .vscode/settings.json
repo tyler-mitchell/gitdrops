@@ -1,4 +1,20 @@
 {
-  "typescript.tsdk": "../../node_modules/.pnpm/typescript@4.9.5/node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cx(?:\\.\\w*)?\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+
+    ["(?:classed|comp)(?:\\.\\w*)?\\(([^)]*)\\)", "['\"]([^'\"{},]+)['\"]"],
+    [
+      "(?:classed|comp)(?:\\.\\w*)?\\(([^)]*)\\)",
+      "(?<=variants: {[^}]*['\"]|, ['\"]?)?[^'\"{}]+(?=['\"])"
+    ],
+    [
+      "(?:classed|comp)(?:\\.\\w*)?\\(([^)]*)\\)",
+      "(?<=variants: {\\w+: {\\w+: ['\"]?)?\\S+(?=['\"])"
+    ]
+  ]
 }
