@@ -1,25 +1,189 @@
-import * as React from "react"
+import * as React from "react";
+import {
+  NumberField as AriaNumberField,
+  NumberFieldProps,
+  Input,
+  TextField as AriaTextField,
+  TextFieldProps,
+  Label,
+  Button as AriaButton,
+  SearchField as AriaSearchField,
+  SearchFieldProps,
+} from "react-aria-components";
+import { classed } from "@tw-classed/react";
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
+const inputClass =
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+const BaseInput = classed(Input, inputClass);
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        className={cn(
-          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-          className
-        )}
-        ref={ref}
-        {...props}
+const NumberField = (props: NumberFieldProps) => {
+  return (
+    <AriaNumberField {...props} className="w-full">
+      <BaseInput />
+    </AriaNumberField>
+  );
+};
+
+const InputIconElement = classed("div", "h-4 w-4", {
+  variants: {
+    position: {
+      start: "mr-3",
+      end: "ml-3",
+    },
+  },
+});
+
+const InputIcon = ({
+  icon,
+  className,
+  position,
+}: {
+  icon?: React.ReactNode;
+  position: "start" | "end";
+  className?: string;
+}) => {
+  if (!icon && !className) return null;
+
+  return (
+    <InputIconElement className={className} position={position}>
+      {icon}
+    </InputIconElement>
+  );
+};
+
+const TextField = ({
+  label,
+  placeholder,
+  leadingIcon,
+  trailingIcon,
+  leadingIconClassName,
+  trailingIconClassName,
+  ...props
+}: TextFieldProps & InnerInputProps) => {
+  return (
+    <AriaTextField {...props}>
+      <InnerInput
+        {...{
+          label,
+          placeholder,
+          leadingIcon,
+          trailingIcon,
+          leadingIconClassName,
+          trailingIconClassName,
+        }}
       />
-    )
-  }
-)
-Input.displayName = "Input"
+    </AriaTextField>
+  );
+};
+("");
+const SearchField = ({
+  label,
+  placeholder,
+  leadingIcon,
+  trailingIcon,
+  leadingIconClassName,
+  trailingIconClassName,
+  ...props
+}: SearchFieldProps & InnerInputProps) => {
+  return (
+    <AriaSearchField {...props} className="w-full">
+      <InnerInput
+        {...{
+          label,
+          placeholder,
+          leadingIcon,
+          trailingIcon,
+          leadingIconClassName,
+          trailingIconClassName,
+        }}>
+        <AriaButton className="cursor-pointer absolute right-0" />
+      </InnerInput>
+    </AriaSearchField>
+  );
+};
 
-export { Input }
+type InnerInputProps = {
+  label?: React.ReactNode;
+  placeholder?: string;
+  leadingIconClassName?: string;
+  leadingIcon?: React.ReactNode;
+  trailingIcon?: React.ReactNode;
+  trailingIconClassName?: string;
+  children?: React.ReactNode;
+};
+
+const InnerInput = ({
+  label,
+  placeholder,
+  leadingIcon,
+  trailingIcon,
+  leadingIconClassName,
+  trailingIconClassName,
+  children,
+}: InnerInputProps) => {
+  const inputRef = React.useRef<React.ElementRef<"input">>(null);
+
+  return (
+    <>
+      {label && <Label>{label}</Label>}
+      <div
+        className={cn(inputClass, "flex items-center cursor-text w-full")}
+        onClick={() => {
+          inputRef.current?.focus();
+        }}>
+        <InputIcon
+          position="start"
+          icon={leadingIcon}
+          className={leadingIconClassName}
+        />
+        <Input
+          ref={inputRef}
+          placeholder={placeholder}
+          className={cn(
+            "bg-transparent focus:ring-0 focus:outline-none block placeholder:text-muted w-full",
+            {
+              "pl-4": Boolean(leadingIcon),
+            }
+          )}
+        />
+        <InputIcon
+          position="end"
+          icon={trailingIcon}
+          className={trailingIconClassName}
+        />
+        {children}
+      </div>
+    </>
+  );
+};
+
+const CurrencyField = (props: NumberFieldProps) => {
+  return (
+    <NumberField
+      {...props}
+      formatOptions={{
+        ...props.formatOptions,
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }}
+    />
+  );
+};
+
+const PercentField = (props: NumberFieldProps) => {
+  return (
+    <NumberField
+      {...props}
+      formatOptions={{
+        ...props.formatOptions,
+        style: "percent",
+        maximumFractionDigits: 3,
+      }}
+    />
+  );
+};
+
+export { TextField, CurrencyField, PercentField, SearchField };

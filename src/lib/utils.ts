@@ -10,3 +10,7 @@ export function notEmpty<TValue>(
 ): value is TValue {
   return value !== null && value !== undefined;
 }
+
+export function stringifyData(data: unknown) {
+  return JSON.stringify(data, null, 2);
+}

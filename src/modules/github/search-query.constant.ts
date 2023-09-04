@@ -46,14 +46,19 @@ export const timePresetOptions: QualifierOption[] = [
 
 // Language Qualifier
 
-type LanguageData = {
+export type LanguageMetadata = {
   label: string;
-  iconClassName: `i-skill-icons-${string}`;
+  iconClassName?: string;
+  color?: string;
 };
 
 export type LanguagesQualifierValue = keyof typeof languageMap;
 
 export const languageMap = {
+  "all-languages": {
+    iconClassName: "i-lucide-code",
+    label: "All Languages",
+  },
   typescript: {
     label: "TypeScript",
     iconClassName: "i-skill-icons-typescript",
@@ -203,7 +208,7 @@ export const languageMap = {
     label: "Dockerfile",
     iconClassName: "i-skill-icons-docker",
   },
-} satisfies Record<string, LanguageData>;
+} satisfies Record<string, LanguageMetadata>;
 
 export function getLanguageOptions(): Omit<QualifierOptions, "optionMap"> {
   return {

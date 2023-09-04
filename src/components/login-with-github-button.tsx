@@ -1,20 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { signInWithGithub } from "@/modules/firebase";
-import { useState } from "react";
+import { useGithubSignIn } from "@/modules/firebase";
 
 export function InstallGithubAppButton() {
-  const [token, setToken] = useState<string | undefined>();
-  async function handleLogin() {
-    const { githubOAuthCredential } = (await signInWithGithub()) ?? {};
+  const { signInWithGithub, isSignedIn } = useGithubSignIn();
 
-    setToken(githubOAuthCredential?.accessToken);
+  if (isSignedIn) return null;
 
-    console.log("githubOAuthCredential", githubOAuthCredential);
-  }
   return (
     <Button
       onClick={async () => {
-        handleLogin();
+        signInWithGithub();
       }}
       variant="outline"
       size="default"

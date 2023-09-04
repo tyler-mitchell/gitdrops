@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom/client";
+import { render } from "react-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { env } from "@/env/index.ts";
 import { Router, RouterProvider } from "@tanstack/react-router";
@@ -22,12 +22,12 @@ declare module "@tanstack/react-router" {
 const rootElement = document.getElementById("root")!;
 
 if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
+  render(
     <ThemeProvider defaultTheme="dark">
       <ClerkProvider publishableKey={env.VITE_CLERK_PUBLISHABLE_KEY}>
         <RouterProvider router={router} />
       </ClerkProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
+    rootElement
   );
 }

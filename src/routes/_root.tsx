@@ -20,7 +20,8 @@ export const route = new RootRoute({
           </div>
         </nav>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-screen pt-12">
-          <div className="mx-auto max-w-3xl">
+          {/* <div className="mx-auto max-w-3xl flex flex-col h-full"> */}
+          <div className="mx-auto  flex flex-col h-full">
             <Outlet />
           </div>
         </div>
@@ -28,5 +29,3 @@ export const route = new RootRoute({
     );
   },
 });
-
-function RepoCard() {}

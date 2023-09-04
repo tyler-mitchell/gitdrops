@@ -12,8 +12,9 @@ import {
   ResolvedQualifierConfig,
 } from "@/modules/github/search-query.types";
 import { map as mapRecord } from "@effect/data/ReadonlyRecord";
+import { notEmpty } from "@/lib/utils";
 
-export function numberFormat(num?: number) {
+export function numberFormat(num?: number | null) {
   if (!num) return undefined;
   return new Intl.NumberFormat().format(num);
 }
@@ -43,8 +44,13 @@ function qualifierString({ qualifier, value }: Qualifier) {
   return `${qualifier}:${value}`;
 }
 
-export function buildGithubSearchQueryString(qualifiers: Qualifier[]) {
-  return qualifiers.map((e) => qualifierString(e)).join(" ");
+export function buildGithubSearchQueryString(
+  qualifiers: Qualifier[],
+  search?: string
+) {
+  return [search, ...qualifiers.map((e) => qualifierString(e))]
+    .filter(notEmpty)
+    .join(" ");
 }
 
 export function defineQualifierConfig<T extends QualifierConfigMap>(config: T) {

@@ -1,0 +1,45 @@
+import { GithubRepoCardProps } from "@/modules/github/GithubRepoCard";
+
+export const githubRepoCardMockList: GithubRepoCardProps[] = [
+  {
+    repoName: "httpxy",
+    description: "🔀 A Full-Featured HTTP and WebSocket Proxy for Node.js",
+    repoUrl: "https://github.com/unjs/httpxy",
+    ownerUrl: "https://github.com/unjs",
+    viewerHasStarred: true,
+    starCount: 68,
+    createdAt: "2023-08-21T15:53:01Z",
+    ownerUsername: "unjs",
+    languages: [],
+    avatarUrl: "https://avatars.githubusercontent.com/u/80154025?v=4",
+    starCountFormatted: "68",
+  },
+  {
+    repoName: "imersao14",
+    // description: null,
+    description: undefined,
+    repoUrl: "https://github.com/devfullcycle/imersao14",
+    ownerUrl: "https://github.com/devfullcycle",
+    viewerHasStarred: false,
+    starCount: 42,
+    createdAt: "2023-08-20T22:21:28Z",
+    ownerUsername: "devfullcycle",
+    languages: [],
+    avatarUrl: "https://avatars.githubusercontent.com/u/91744653?v=4",
+    starCountFormatted: "42",
+  },
+  {
+    repoName: "trpc-on-the-app-router",
+    description: "Code for the tRPC on the App Router video",
+    repoUrl: "https://github.com/jherr/trpc-on-the-app-router",
+    ownerUrl: "https://github.com/jherr",
+    viewerHasStarred: false,
+    starCount: 41,
+    starCountFormatted: "41",
+    createdAt: "2023-08-21T13:32:55Z",
+    ownerUsername: "jherr",
+    languages: [],
+    avatarUrl:
+      "https://avatars.githubusercontent.com/u/22392?u=ba4f3aec3b3c4f4e86c26770bbfe410c666ec91d&v=4",
+  },
+];

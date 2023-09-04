@@ -14,7 +14,7 @@ import { Atom, atom, useAtom, useAtomValue, useStore } from "jotai";
 import { selectAtom } from "jotai/utils";
 import { DevTools, useAtomsDevtools } from "jotai-devtools";
 import deepEqual from "fast-deep-equal";
-
+import useConstant from "use-constant";
 import {
   Patch,
   produce,
@@ -334,15 +334,16 @@ export function createLocalState<
       setHistory,
     });
 
-    const dispatch = createDispatcher({
-      state,
-      reducers,
-      updateHistory: update,
-    });
+    const dispatch = useConstant(() =>
+      // ...historyMethods,
+      createDispatcher({
+        state,
+        reducers,
+        updateHistory: update,
+      })
+    );
 
-    return [state, { ...historyMethods, ...dispatch }] as unknown as ReturnType<
-      TReturn["useContext"]
-    >;
+    return [state, dispatch] as unknown as ReturnType<TReturn["useContext"]>;
   }
 
   function useDispatcher() {

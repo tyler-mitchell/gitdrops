@@ -18,7 +18,7 @@ export function now() {
   return new Date();
 }
 
-export function timeAgo(dateString?: string) {
+export function timeAgo(dateString?: string | null) {
   const date = new Date(dateString ?? "");
   if (!isValid(date)) return undefined;
 
