@@ -1,6 +1,7 @@
-export type QualifierFilterId = "language" | "created" | "minStars";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type QualifierFilterId = string;
 
-export type QualifierId = "language" | "created" | "stars";
+export type QualifierId = string;
 
 export type QualifierValue = string;
 
@@ -20,7 +21,8 @@ export type QualifierOptionGroup = {
   groupLabel: string;
   groupId: string;
   options: QualifierOption[];
-  hasIcons?: boolean;
+  showIcons?: boolean;
+  isPrimary?: boolean;
 };
 
 export type QualifierOptionMap = Map<string, QualifierOption>;
@@ -32,6 +34,7 @@ export interface QualifierConfig {
   required?: boolean;
   defaultValue: QualifierValue;
   options: QualifierOption[];
+  Icon?: (...args: any[]) => JSX.Element | React.ReactElement<any, any>;
   optionGroups?: QualifierOptionGroup[];
   width?: React.CSSProperties["width"];
   inputProps?: {
@@ -54,6 +57,8 @@ export interface QualifierConfig {
 export interface ResolvedQualifierConfig extends QualifierConfig {
   optionMap: QualifierOptionMap;
   value?: string;
+  allOptions: QualifierOption[];
+  allOptionGroups: QualifierOptionGroup[];
 }
 
 export type QualifierOptions = Pick<

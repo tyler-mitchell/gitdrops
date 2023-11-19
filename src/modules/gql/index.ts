@@ -10,45 +10,7 @@ import {
   scalarsEnumsHash,
   type GeneratedSchema,
 } from "./schema.generated";
-import { githubAccessToken } from "@/modules/firebase";
-
-const queryFetcher: QueryFetcher = async function (
-  { query, variables, operationName },
-  fetchOptions
-) {
-  const response = await fetch("https://api.github.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...githubAccessToken.getTokenAuthHeader(),
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-      operationName,
-    }),
-    mode: "cors",
-    ...fetchOptions,
-  });
-
-  if (response.status >= 400) {
-    throw new GQtyError(
-      `GraphQL endpoint responded with HTTP status ${response.status}.`
-    );
-  }
-
-  const text = await response.text();
-
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new GQtyError(
-      `Malformed JSON response: ${
-        text.length > 50 ? text.slice(0, 50) + "..." : text
-      }`
-    );
-  }
-};
+import { queryFetcher } from "./queryFetcher";
 
 const cache = new Cache(
   undefined,
@@ -74,17 +36,6 @@ export const client = createClient<GeneratedSchema>({
 
 // Core functions
 export const { resolve, subscribe, schema } = client;
-
-// Legacy functions
-export const {
-  query,
-  mutation,
-  mutate,
-  subscription,
-  resolved,
-  refetch,
-  track,
-} = client;
 
 export const {
   graphql,

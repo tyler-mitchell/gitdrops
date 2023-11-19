@@ -26,7 +26,7 @@ const NumberField = (props: NumberFieldProps) => {
   );
 };
 
-const InputIconElement = classed("div", "h-4 w-4", {
+const InputIconElement = classed("div", "h-5 w-5 max-h-8 max-w-8", {
   variants: {
     position: {
       start: "mr-3",
@@ -77,7 +77,7 @@ const TextField = ({
     </AriaTextField>
   );
 };
-("");
+
 const SearchField = ({
   label,
   placeholder,
@@ -85,19 +85,24 @@ const SearchField = ({
   trailingIcon,
   leadingIconClassName,
   trailingIconClassName,
+  className,
+  loading,
   ...props
-}: SearchFieldProps & InnerInputProps) => {
+}: SearchFieldProps & InnerInputProps & { loading?: boolean }) => {
   return (
-    <AriaSearchField {...props} className="w-full">
+    <AriaSearchField {...props} className={cn("w-full", className)}>
       <InnerInput
         {...{
           label,
           placeholder,
           leadingIcon,
           trailingIcon,
-          leadingIconClassName,
+          leadingIconClassName: loading
+            ? cn("i-lucide-loader-2 animate-spin")
+            : leadingIconClassName,
           trailingIconClassName,
-        }}>
+        }}
+      >
         <AriaButton className="cursor-pointer absolute right-0" />
       </InnerInput>
     </AriaSearchField>
@@ -132,7 +137,8 @@ const InnerInput = ({
         className={cn(inputClass, "flex items-center cursor-text w-full")}
         onClick={() => {
           inputRef.current?.focus();
-        }}>
+        }}
+      >
         <InputIcon
           position="start"
           icon={leadingIcon}

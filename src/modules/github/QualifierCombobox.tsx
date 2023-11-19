@@ -2,183 +2,213 @@
 
 import * as React from "react";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  ResolvedQualifierConfig,
-  type QualifierFilterId,
-} from "./search-query.types";
-import { QualifierOption } from "@/modules/github/search-query.types";
-import { CommandList } from "cmdk";
-import { useQualifierContext } from "@/modules/github/QualifierContext";
+import { QualifierOption, ResolvedQualifierConfig } from "./search-query.types";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useRef } from "preact/hooks";
+// import { Offscreen } from "@/components/offscreen";
+import { Virtualizer } from "@/components/virtual-list";
 
-type OnSelect = (value: string) => void;
+type QualifierComboboxProps = {
+  onSelect?: (qualifier?: QualifierOption) => void;
+  qualifierConfig: ResolvedQualifierConfig;
+  className?: string;
+  isOpen?: boolean;
+};
 
-export function QualifierCombobox({
-  qualifier,
+function OptionIcon({
+  iconClassName,
+  className,
+  enabled = true,
+  Icon,
 }: {
-  qualifier: QualifierFilterId;
+  iconClassName?: string;
+  className?: string;
+  enabled?: boolean;
+  Icon?: ResolvedQualifierConfig["Icon"];
 }) {
-  const [{ qualifierConfig }, dispatch] = useQualifierContext();
+  if ((!iconClassName && !Icon) || !enabled) return null;
 
-  const {
-    options: qualifierOptions,
-    optionGroups,
-    optionMap,
-    inputProps,
-    listProps,
-    listItemProps,
-    searchProps,
-    required,
-    width = "200px",
-  } = qualifierConfig[qualifier];
+  const Component = Icon ?? "span";
 
-  const selected = qualifierConfig[qualifier].value ?? "";
+  return (
+    <Component className={cn("h-4 w-4 shrink-0", iconClassName, className)} />
+  );
+}
 
-  const options = qualifierOptions ?? [];
+const ComboboxSelect = ({
+  qualifierConfig,
+  className: classNameProp,
+  isOpen,
+}: QualifierComboboxProps) => {
+  const { optionMap, value, inputProps, Icon } = qualifierConfig;
 
-  const selectedOption = optionMap.get(selected);
+  const { placeholder, className, showIcon = true } = inputProps ?? {};
+
+  const selected = optionMap.get(value ?? "");
+
+  return (
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        role="combobox"
+        aria-expanded={isOpen}
+        className={cn(
+          "w-[200px] whitespace-nowrap justify-between gap-2",
+          className,
+          classNameProp
+        )}
+        style={
+          {
+            // width: width ?? "200px",
+            // maxWidth: width ?? "200px",
+          }
+        }
+      >
+        <OptionIcon
+          enabled={showIcon}
+          iconClassName={selected?.iconClassName}
+          Icon={Icon}
+        />
+
+        {selected ? selected.label : placeholder}
+
+        <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    </PopoverTrigger>
+  );
+};
+export function QualifierCombobox(props: QualifierComboboxProps) {
+  const { onSelect } = props;
 
   const [open, setOpen] = React.useState(false);
 
-  function handleOptionSelect(currentValue: string) {
-    const newValue = !required && currentValue === selected ? "" : currentValue;
-
-    dispatch.setQualifierValue({ qualifier, value: newValue });
-
+  function handleClosePopover() {
     setOpen(false);
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn("w-[200px] justify-between", inputProps?.className)}
-          style={{ width }}>
-          <InputLabel selectedOption={selectedOption} inputProps={inputProps} />
+      <ComboboxSelect isOpen={open} {...props} />
 
-          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0" style={{ width }}>
-        <Command>
-          {searchProps?.searchable && (
-            <CommandInput
-              placeholder={searchProps.placeholder ?? "Search..."}
-              className="h-9"
-            />
-          )}
-          {listProps?.emptyLabel && (
-            <CommandEmpty>{listProps?.emptyLabel}</CommandEmpty>
-          )}
-
-          <CommandList className="max-h-96 overflow-y-auto">
-            <OptionGroup
-              showIcons={listItemProps?.showIcon}
-              options={options}
-              onSelect={handleOptionSelect}
-              selected={`${selected}`}
-            />
-            {optionGroups?.map(({ groupId, groupLabel, options }) => (
-              <OptionGroup
-                heading={groupLabel}
-                key={groupId}
-                options={options}
-                onSelect={handleOptionSelect}
-                selected={`${selected}`}
-              />
-            ))}
-          </CommandList>
-        </Command>
+      <PopoverContent className="w-[200px] p-0 h-full">
+        <QualifierList
+          {...props}
+          onSelect={(v) => {
+            onSelect?.(v);
+            handleClosePopover();
+          }}
+        />
       </PopoverContent>
     </Popover>
   );
 }
 
-function InputLabel({
-  selectedOption,
-  inputProps,
-}: {
-  selectedOption?: QualifierOption;
-  inputProps: ResolvedQualifierConfig["inputProps"];
-}) {
-  if (!selectedOption) return inputProps?.placeholder ?? "Select...";
-
-  const { label, iconClassName } = selectedOption;
-
-  return (
-    <>
-      <div className={cn("flex items-center justify-center gap-2")}>
-        {inputProps?.showIcon && (
-          <ComboboxItemIcon iconClassName={iconClassName} />
-        )}
-        <div>{label}</div>
-      </div>
-    </>
-  );
-}
-
-function OptionGroup({
-  options,
-  selected,
+const QualifierList = ({
+  qualifierConfig,
   onSelect,
-  heading,
-  showIcons,
-}: {
-  options: QualifierOption[];
-  selected: string;
-  heading?: string;
-  onSelect: OnSelect;
-  showIcons?: boolean;
-}) {
+}: QualifierComboboxProps) => {
+  const {
+    allOptions: options,
+    optionMap,
+    width,
+    value,
+    listProps,
+    searchProps,
+    listItemProps,
+    required = true,
+    Icon,
+  } = qualifierConfig;
+
+  const scrollRef = useRef<React.ElementRef<"div">>(null);
+
+  const virtualizer = useVirtualizer({
+    count: options.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 32,
+
+    overscan: 20,
+  });
+
   return (
-    <CommandGroup heading={heading}>
-      {options.map(({ label, qualifierValue, iconClassName }) => (
-        <CommandItem
-          value={qualifierValue}
-          key={qualifierValue}
-          className="cursor-pointer"
-          onSelect={(currentValue) => {
-            onSelect(currentValue);
-          }}>
-          {showIcons && (
-            <ComboboxItemIcon iconClassName={iconClassName} className="mr-2" />
-          )}
-          {label}
+    <Command className="h-full">
+      {searchProps?.searchable && (
+        <CommandInput placeholder={searchProps?.placeholder} className="h-9" />
+      )}
 
-          <CheckIcon
-            className={cn(
-              "ml-auto h-4 w-4",
-              selected === qualifierValue ? "opacity-100" : "opacity-0"
-            )}
-          />
-        </CommandItem>
-      ))}
-    </CommandGroup>
+      {listProps?.emptyLabel && (
+        <CommandEmpty>{listProps.emptyLabel}</CommandEmpty>
+      )}
+
+      <Virtualizer
+        scrollRef={scrollRef}
+        virtualizer={virtualizer}
+        width={width}
+      >
+        <Virtualizer.ScrollArea ref={scrollRef}>
+          <Virtualizer.Viewport>
+            <CommandList>
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const option = options[virtualItem.index];
+
+                return (
+                  <Virtualizer.Item
+                    key={`${option.qualifierValue}-${virtualItem.index}`}
+                    virtualItem={virtualItem}
+                  >
+                    <CommandItem
+                      autoFocus={false}
+                      value={option.qualifierValue}
+                      onSelect={(v) => {
+                        const shouldUnselect = value === v && !required;
+
+                        console.log({ shouldUnselect, v, value });
+
+                        const selected = shouldUnselect
+                          ? undefined
+                          : optionMap.get(v);
+
+                        onSelect?.(selected);
+                      }}
+                      className="w-full flex items-center gap-2"
+                    >
+                      <OptionIcon
+                        enabled={listItemProps?.showIcon}
+                        iconClassName={option.iconClassName}
+                        Icon={Icon}
+                      />
+
+                      {option.label}
+                      <CheckIcon
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          value === option.qualifierValue
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  </Virtualizer.Item>
+                );
+              })}
+            </CommandList>
+          </Virtualizer.Viewport>
+        </Virtualizer.ScrollArea>
+      </Virtualizer>
+    </Command>
   );
-}
-
-function ComboboxItemIcon({
-  iconClassName,
-  className,
-}: {
-  iconClassName?: string;
-  className?: string;
-}) {
-  return <div className={cn("h-4 w-4 shrink-0", iconClassName, className)} />;
-}
+};

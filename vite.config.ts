@@ -1,13 +1,12 @@
-import path from "path";
-import react from "@vitejs/plugin-react";
-import million from "million/compiler";
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
+import preact from "@preact/preset-vite";
 
 export default defineConfig({
-  plugins: [million.vite({}), react()],
+  plugins: [preact()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": resolve(__dirname, "./src"),
     },
   },
 });

@@ -2,17 +2,34 @@ import * as React from "react";
 import { Outlet, RootRoute } from "@tanstack/react-router";
 import { InstallGithubAppButton } from "@/components/login-with-github-button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useQualifierContext } from "@/modules/github/QualifierContext";
+import { store } from "@/store";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 export const route = new RootRoute({
   component: function RootPage() {
-    const [{ githubQueryString }] = useQualifierContext();
-
     return (
-      <div>
-        <nav className="fixed top-0 w-full h-12 flex items-center gap-2 px-4  justify-between">
-          <div className="font-medium text-xl select-none">Gitdrops</div>
-          <div className="text-muted select-none">{githubQueryString}</div>
+      <div className="">
+        <nav className="fixed top-0 w-full flex items-center gap-2 px-4 py-2 justify-between z-50 bg-card">
+          <div className="font-medium text-lg select-none">Gitdrops</div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="sm">
+                  Hover
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span> {store.githubSearch.searchVariables.query}</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div></div>
 
           <div className="flex items-center gap-2">
             <InstallGithubAppButton />

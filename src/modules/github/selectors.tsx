@@ -10,7 +10,7 @@ import { timeAgo } from "@/lib/date-utils";
 import {
   LanguageMetadata,
   languageMap,
-} from "@/modules/github/search-query.constant";
+} from "@/modules/github/qualifier-presets/language";
 import { get } from "@effect/data/ReadonlyRecord";
 import { notEmpty } from "@/lib/utils";
 import { getOrUndefined } from "@effect/data/Option";
@@ -45,6 +45,7 @@ export function githubRepoCardListSelector(
 
         const languageConnection = languagesQuery?.({
           first: 3,
+
           orderBy: {
             field: LanguageOrderField.SIZE,
             direction: OrderDirection.DESC,

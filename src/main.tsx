@@ -1,10 +1,8 @@
-import { render } from "react-dom";
-import { ClerkProvider } from "@clerk/clerk-react";
-import { env } from "@/env/index.ts";
 import { Router, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import "@/styles/global.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { AppProvider } from "./providers";
+import { render } from "preact";
 
 // Set up a Router instance
 const router = new Router({
@@ -19,15 +17,9 @@ declare module "@tanstack/react-router" {
   }
 }
 
-const rootElement = document.getElementById("root")!;
-
-if (!rootElement.innerHTML) {
-  render(
-    <ThemeProvider defaultTheme="dark">
-      <ClerkProvider publishableKey={env.VITE_CLERK_PUBLISHABLE_KEY}>
-        <RouterProvider router={router} />
-      </ClerkProvider>
-    </ThemeProvider>,
-    rootElement
-  );
-}
+render(
+  <AppProvider>
+    <RouterProvider router={router} />
+  </AppProvider>,
+  document.getElementById("root")!
+);

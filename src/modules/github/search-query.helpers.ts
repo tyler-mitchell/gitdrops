@@ -1,22 +1,57 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TimeDurationType, getTimeRange } from "@/lib/date-utils";
 import type {
   Qualifier,
-  ResolvedQualifierConfigMap,
+  QualifierConfig,
+  QualifierOption,
+  QualifierOptionGroup,
 } from "./search-query.types";
-import { format } from "date-fns";
+import { format, sub } from "date-fns";
 import {
   QualifierOptionMapEntry,
   QualifierOptions,
   QualifierOptionMap,
-  QualifierConfigMap,
   ResolvedQualifierConfig,
 } from "@/modules/github/search-query.types";
-import { map as mapRecord } from "@effect/data/ReadonlyRecord";
 import { notEmpty } from "@/lib/utils";
+import { scope } from "arktype";
+import { O } from "ts-toolbelt";
+import { defu } from "defu";
 
 export function numberFormat(num?: number | null) {
   if (!num) return undefined;
   return new Intl.NumberFormat().format(num);
+}
+
+const timeDefinitionSechema = scope({
+  _duration: "'days' | 'weeks' | 'months' | 'years'",
+  _operator: "'>' | '>=' | '<' | '<=' | '='",
+  relativeTimeDefinition: ["_operator", "number", "_duration"],
+}).compile();
+
+export type TimeDefinition =
+  typeof timeDefinitionSechema.relativeTimeDefinition.infer;
+
+export function parseTimeDefinition(option: TimeDefinition) {
+  const { relativeTimeDefinition } = timeDefinitionSechema;
+
+  const { data, problems } = relativeTimeDefinition(option);
+
+  if (problems) {
+    throw problems.throw();
+  }
+
+  const [operator, count, duration] = data;
+
+  const op = operator === "=" ? "" : operator;
+
+  return { qualifierValue: `${op}${formatTimeAgo(count, duration)}` };
+}
+
+function formatTimeAgo(count: number, duration: TimeDurationType) {
+  const now = new Date();
+  const ago = sub(now, { [duration]: count });
+  return githubDateFormat(ago);
 }
 
 export function timeRangeQualifierValue(ago: number, type: TimeDurationType) {
@@ -31,12 +66,10 @@ function githubTimeRangeFormat({
   startDate: Date;
   endDate: Date;
 }) {
-  return `${githubSearchDateFormat(startDate)}..${githubSearchDateFormat(
-    endDate
-  )}`;
+  return `${githubDateFormat(startDate)}..${githubDateFormat(endDate)}`;
 }
 
-export function githubSearchDateFormat(date: Date) {
+export function githubDateFormat(date: Date) {
   return format(date, "yyyy-MM-dd");
 }
 
@@ -53,24 +86,36 @@ export function buildGithubSearchQueryString(
     .join(" ");
 }
 
-export function defineQualifierConfig<T extends QualifierConfigMap>(config: T) {
-  const resolvedQualifiers = mapRecord(config, (v) => {
-    const { options, optionGroups, listItemProps, defaultValue } = v;
+export function defineQualifierPreset<
+  R extends Omit<QualifierConfig, "qualifier">,
+  T extends (opts?: any) => R,
+  P extends T extends (opts: infer P) => R ? P : never
+>(config: T) {
+  return <TOverride extends O.Required<Partial<QualifierConfig>, "qualifier">>(
+    overrides: TOverride & P
+  ) =>
+    defineQualifier(
+      defu(overrides, config(overrides)) as never as O.Merge<R, TOverride>
+    );
+}
 
-    const { optionMap, defaultShowOptionIcons } = getOptionMap({
-      options,
-      optionGroups,
-    });
+export function defineQualifier<T extends QualifierConfig>(config: T) {
+  const { options, optionGroups, listItemProps, defaultValue } = config;
 
-    return {
-      ...v,
-      value: defaultValue,
-      listItemProps: { showIcon: defaultShowOptionIcons, ...listItemProps },
-      optionMap,
-    } as ResolvedQualifierConfig;
+  const optionData = getOptionMap({
+    options,
+    optionGroups,
   });
 
-  return resolvedQualifiers as ResolvedQualifierConfigMap;
+  return {
+    ...config,
+    value: defaultValue,
+    listItemProps: {
+      showIcon: optionData.defaultShowOptionIcons,
+      ...listItemProps,
+    },
+    ...optionData,
+  } as ResolvedQualifierConfig;
 }
 
 function getOptionMap({
@@ -79,6 +124,8 @@ function getOptionMap({
 }: Omit<QualifierOptions, "optionMap">): {
   defaultShowOptionIcons: boolean;
   optionMap: QualifierOptionMap;
+  allOptions: QualifierOption[];
+  allOptionGroups: QualifierOptionGroup[];
 } {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let defaultShowOptionIcons: boolean = false;
@@ -97,8 +144,25 @@ function getOptionMap({
       e.options.map((e) => [e.qualifierValue, e] as QualifierOptionMapEntry)
     ) ?? [];
 
+  const optionMap = new Map([...optionEntries, ...optionGroupEntries]);
+
+  const allOptions = Array.from(optionMap.values());
+
+  const allOptionGroups: QualifierOptionGroup[] = [
+    {
+      isPrimary: true,
+      groupId: "options",
+      groupLabel: "",
+      options,
+      showIcons: defaultShowOptionIcons,
+    },
+    ...(optionGroups ?? []),
+  ];
+
   return {
     defaultShowOptionIcons,
-    optionMap: new Map([...optionEntries, ...optionGroupEntries]),
+    optionMap,
+    allOptions,
+    allOptionGroups,
   };
 }

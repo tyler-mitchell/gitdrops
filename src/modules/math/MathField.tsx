@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useRef } from "react";
 import { Mathfield, MathfieldElement, MathfieldOptions } from "mathlive";
 import "mathlive/dist/mathlive-fonts.css";
@@ -92,6 +93,7 @@ export const MathLive = ({
         className,
         options?.readOnly && styles.disabled,
         inline && styles.inline
-      )}></div>
+      )}
+    ></div>
   );
 };

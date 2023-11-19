@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LanguageMetadata,
   languageMap,
-} from "@/modules/github/search-query.constant";
+} from "@/modules/github/qualifier-presets/language";
 import { cn } from "@/lib/utils";
 import { numberFormat } from "@/modules/github/search-query.helpers";
 import { Language, Maybe } from "@/modules/gql";
@@ -72,7 +72,8 @@ export const GithubCard = ({
               )}
               <a
                 className="text-primary/50 font-normal text-lg leading-3 hover:underline"
-                href={ownerUrl ?? ""}>
+                href={ownerUrl ?? ""}
+              >
                 {ownerUsername}
               </a>
             </span>
@@ -89,13 +90,15 @@ export const GithubCard = ({
                 "shadow-sm bg-gradient-to-r from-yellow-300/10 to-yellow-500/5 border-yellow-300/90":
                   viewerHasStarred,
               }
-            )}>
+            )}
+          >
             <span className={cn("text-xs")}>⭐️</span>{" "}
             <span
               className={cn("text-primary", {
                 "underline-offset-2 decoration-2 decoration-yellow-200 dark:text-white  text-black":
                   viewerHasStarred,
-              })}>
+              })}
+            >
               {numberFormat(starCount)}
             </span>
           </span>

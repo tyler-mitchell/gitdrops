@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// @ts-nocheck
 import { PayloadAction, createLocalState } from "../lib/createLocalState";
 import {
   CurrencyField,
@@ -661,14 +662,16 @@ const Breakdown = ({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-10 justify-stretch grow h-full">
+            className="flex flex-col gap-10 justify-stretch grow h-full"
+          >
             <Section title="Base">
               <FormRow>
                 <VariableField name="basePay" form={form} />
                 <Field
                   name="stateIncomeTaxRate"
                   label="State Income Tax"
-                  control={control}>
+                  control={control}
+                >
                   <PercentField />
                 </Field>
               </FormRow>
@@ -676,14 +679,16 @@ const Breakdown = ({
                 <Field
                   name="monthlyRent1"
                   label="Monthly Rent"
-                  control={control}>
+                  control={control}
+                >
                   <CurrencyField />
                 </Field>
 
                 <Field
                   name="monthlyRent2"
                   label="Monthly Rent 2"
-                  control={control}>
+                  control={control}
+                >
                   <CurrencyField />
                 </Field>
               </FormRow>
@@ -705,7 +710,8 @@ const Breakdown = ({
                     <div className="text-muted">
                       {percentFormat(totalTaxRate)}
                     </div>
-                  }>
+                  }
+                >
                   {taxes
                     .sort((a, b) => b.value - a.value)
                     .map(({ label, value, percentage }) => (
@@ -723,7 +729,8 @@ const Breakdown = ({
                   title="Additional Benefits"
                   value={additionalYearlyBenefits}
                   sign="positive"
-                  variant="subtotal">
+                  variant="subtotal"
+                >
                   <ul className="w-full">
                     {additionalMonthlyBenefitsList.map(({ label, value }) => {
                       return (
@@ -754,14 +761,16 @@ const Breakdown = ({
                 hidden={defaultValues.fourYearRSU === undefined}
                 name="fourYearRSU"
                 label="RSU"
-                control={control}>
+                control={control}
+              >
                 <CurrencyField />
               </Field>
               <Field
                 hidden={defaultValues.fourYearRSU === undefined}
                 name="rsuGrowth"
                 className="mt-6"
-                control={control}>
+                control={control}
+              >
                 {({ field }) => (
                   <Slider
                     label={"RSU Growth"}
@@ -786,14 +795,16 @@ const Breakdown = ({
                 hidden={defaultValues.valuation === undefined}
                 name="equityPercent"
                 label="% Equity"
-                control={control}>
+                control={control}
+              >
                 <PercentField />
               </Field>
               <Field
                 hidden={defaultValues.valuation === undefined}
                 name="valuation"
                 className="mt-6"
-                control={control}>
+                control={control}
+              >
                 {({ field }) => (
                   <Slider
                     label={"Valuation"}
@@ -961,7 +972,8 @@ function Statistic({
         <StatValue
           className="min-w-[28%] flex justify-between"
           sign={sign}
-          variant={variant}>
+          variant={variant}
+        >
           <div className="text-xs text-muted/75 text-left empty:invisible">
             {valuePrefix}
           </div>

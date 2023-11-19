@@ -12,7 +12,7 @@ import {
   sub,
 } from "date-fns";
 
-export type TimeDurationType = keyof typeof timeDurationFns;
+export type TimeDurationType = "days" | "weeks" | "months" | "years";
 
 export function now() {
   return new Date();

@@ -1,5 +1,4 @@
 import { classed } from "@tw-classed/react";
-import { ComponentProps } from "react";
 
 const ButtonElement = classed(
   "button",
@@ -30,8 +29,6 @@ const ButtonElement = classed(
     },
   }
 );
-
-const A = () => <ButtonElement />;
 
 export type ButtonProps = React.ComponentProps<typeof ButtonElement>;
 

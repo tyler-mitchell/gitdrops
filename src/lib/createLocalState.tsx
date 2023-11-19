@@ -240,7 +240,6 @@ export function createLocalState<
   }: { children?: React.ReactNode } & Partial<TDefinedState>) {
     const value = rest as TDefinedState;
 
-    console.log("VALUE", value);
     return (
       <ScopeProvider scope={CtxScope} value={{ ...initial, ...value }}>
         <InnerScope>{children}</InnerScope>
@@ -252,10 +251,6 @@ export function createLocalState<
     const store = useStore();
 
     const stateAtom = useCtxAtom("state");
-
-    const [state] = useAtom(stateAtom);
-
-    console.log("STATE ATOM", state);
 
     const [history, setHistory] = useAtom(useCtxAtom("history"));
 
@@ -564,7 +559,8 @@ export const LocalStateTest = () => {
         onClick={() => {
           dispatch.setFirstName("Abe");
           dispatch.setLastName("Lincoln");
-        }}>
+        }}
+      >
         {firstName}
         {lastName}
         {fullName}
