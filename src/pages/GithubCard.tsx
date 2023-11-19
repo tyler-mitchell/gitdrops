@@ -173,16 +173,18 @@ const CreatedAtBadge = React.memo(
 const RepoDescription = React.memo(
   ({ description, className }: { description: string; className?: string }) => {
     return (
-      <div
-        className={cn(
-          "py-2 text-secondary-foreground text-sm pt-2 group-empty:block",
-          {
-            "text-muted-foreground/50": Boolean(description),
-          },
-          className
-        )}
-      >
-        {description}
+      <div className="py-2">
+        <p
+          className={cn(
+            "text-secondary-foreground text-sm  group-empty:block line-clamp-4",
+            {
+              "text-muted-foreground/50": Boolean(description),
+            },
+            className
+          )}
+        >
+          {description}
+        </p>
       </div>
     );
   }
